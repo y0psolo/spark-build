@@ -28,7 +28,7 @@ jobs:
           java-version: '8'
       - name: compile
         env:
-          MAVEN_OPTS: -Xss64m -Xmx2g -XX:ReservedCoreCacheSize=1g
+          MAVEN_OPTS: -Xss64m -Xmx2g -XX:ReservedCodeCacheSize=1g
         run: |
           ./dev/make-distribution.sh --tgz --pip --name $suffix -Phive -Phive-thriftserver -Pkubernetes -Phadoop-cloud -Pnetlib-gpl -Dhadoop.version=$hadoop -DskipTests -Dmaven.source.skip=true -Dmaven.site.skip=true -Dmaven.javadoc.skip=true
       - name: create release
