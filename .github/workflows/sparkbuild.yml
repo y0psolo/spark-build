@@ -18,10 +18,11 @@ jobs:
           with:
             repository: 'apache/spark'
             ref: 'v$Spark'
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '8'
+      - name: Setup Java
+        - uses: actions/setup-java@v3
+          with:
+            distribution: 'zulu'
+            java-version: '8'
       - name: compile
         run: |
           ./dev/make-distribution.sh --tgz --pip -Phive -Phive-thriftserver -Pkubernetes -Phadoop-cloud -Pnetlib-gpl -Dhadoop.version=$Hadoop -DskipTests -Dmaven.source.skip=true -Dmaven.site.skip=true -Dmaven.javadoc.skip=true
