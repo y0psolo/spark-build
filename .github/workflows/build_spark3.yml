@@ -1,4 +1,4 @@
-name: Build spark
+name: Build spark 3.x
 
 on:
   workflow_dispatch:
@@ -7,17 +7,20 @@ on:
       - "main"
 
 jobs:
-  build:
+  build_spark3:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        spark: [3.0.3, 3.1.3, 3.2.1, 3.3.0]
     env:
-      Hadoop: 2.10.2
-      Spark: 2.4.8
+      hadoop: 3.3.3
+      suffix: hadoop3
     steps:
       - name: clone spark repository
         uses: actions/checkout@v3
         with:
           repository: 'apache/spark'
-          ref: 'v${{ env.Spark }}'
+          ref: 'v${{ matrix.spark }}'
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
@@ -25,13 +28,13 @@ jobs:
           java-version: '8'
       - name: compile
         run: |
-          ./dev/make-distribution.sh --tgz --pip -Phive -Phive-thriftserver -Pkubernetes -Phadoop-cloud -Pnetlib-gpl -Dhadoop.version=$Hadoop -DskipTests -Dmaven.source.skip=true -Dmaven.site.skip=true -Dmaven.javadoc.skip=true
+          ./dev/make-distribution.sh --tgz --pip --name $suffix -Phive -Phive-thriftserver -Pkubernetes -Phadoop-cloud -Pnetlib-gpl -Dhadoop.version=$hadoop -DskipTests -Dmaven.source.skip=true -Dmaven.site.skip=true -Dmaven.javadoc.skip=true
       - name: create release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ env.Spark }}"
+          automatic_release_tag: "${{ matrix.spark }}"
           prerelease: false
-          title: "Spark build v${{ env.Spark }}"
+          title: "Build of Spark version ${{ matrix.spark }}"
           files: |
-            spark-${{ env.Spark }}-bin-${{ env.Hadoop }}.tgz
+            spark-${{ matrix.spark }}-bin-${{ env.suffix }}.tgz

@@ -1,0 +1,38 @@
+name: Build spark 2.x
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build_spark2:
+    runs-on: ubuntu-latest
+    env:
+      hadoop: 2.10.2
+      spark: 2.4.8
+      suffix: hadoop2
+    steps:
+      - name: clone spark repository
+        uses: actions/checkout@v3
+        with:
+          repository: 'apache/spark'
+          ref: 'v${{ env.spark }}'
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+      - name: compile
+        run: |
+          ./dev/make-distribution.sh --tgz --pip --name $suffix -Phive -Phive-thriftserver -Pkubernetes -Phadoop-cloud -Pnetlib-gpl -Dhadoop.version=$hadoop -DskipTests -Dmaven.source.skip=true -Dmaven.site.skip=true -Dmaven.javadoc.skip=true
+      - name: create release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ env.spark }}"
+          prerelease: false
+          title: "Build of Spark version ${{ env.spark }}"
+          files: |
+            spark-${{ env.spark }}-bin-${{ env.suffix }}.tgz
