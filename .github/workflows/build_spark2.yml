@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '8'
-          distribution: temurin
+          distribution: azul
           check-latest: true
       - name: compile
         env:
@@ -31,7 +31,7 @@ jobs:
           MAVEN_CLI_OPTS: --no-transfer-progress
           JAVA_VERSION: 8
         run: |
-          ./dev/make-distribution.sh --tgz --pip --name $suffix -Phive -Pyarn -Phive-thriftserver -Pkubernetes -Phadoop-cloud -Dhadoop.version=$hadoop -DskipTests -Dmaven.source.skip=true -Dmaven.site.skip=true -Dmaven.javadoc.skip=true
+          ./dev/make-distribution.sh --tgz --pip --name $suffix -Phive -Phive-thriftserver -Pkubernetes -Phadoop-cloud -Dhadoop.version=$hadoop -DskipTests -Dmaven.source.skip=true -Dmaven.site.skip=true -Dmaven.javadoc.skip=true
       - name: create release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
